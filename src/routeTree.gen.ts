@@ -10,33 +10,175 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
+import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as BookingIndexRouteImport } from './routes/booking.index'
+import { Route as BookingConfirmationRouteImport } from './routes/booking.confirmation'
+import { Route as ManageTokenRouteImport } from './routes/manage.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
+  id: '/appointments',
+  path: '/appointments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCalendarRoute = AdminCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AdminRoute,
+} as any)
+const BookingIndexRoute = BookingIndexRouteImport.update({
+  id: '/booking/',
+  path: '/booking/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingConfirmationRoute = BookingConfirmationRouteImport.update({
+  id: '/booking/confirmation',
+  path: '/booking/confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManageTokenRoute = ManageTokenRouteImport.update({
+  id: '/manage/$token',
+  path: '/manage/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/booking/confirmation': typeof BookingConfirmationRoute
+  '/manage/$token': typeof ManageTokenRoute
+  '/admin/': typeof AdminIndexRoute
+  '/booking/': typeof BookingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/booking/confirmation': typeof BookingConfirmationRoute
+  '/manage/$token': typeof ManageTokenRoute
+  '/admin': typeof AdminIndexRoute
+  '/booking': typeof BookingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
+  '/booking/confirmation': typeof BookingConfirmationRoute
+  '/manage/$token': typeof ManageTokenRoute
+  '/admin/': typeof AdminIndexRoute
+  '/booking/': typeof BookingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/admin/appointments'
+    | '/admin/calendar'
+    | '/booking/confirmation'
+    | '/manage/$token'
+    | '/admin/'
+    | '/booking/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/admin/appointments'
+    | '/admin/calendar'
+    | '/booking/confirmation'
+    | '/manage/$token'
+    | '/admin'
+    | '/booking'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/contact'
+    | '/privacy'
+    | '/terms'
+    | '/admin/appointments'
+    | '/admin/calendar'
+    | '/booking/confirmation'
+    | '/manage/$token'
+    | '/admin/'
+    | '/booking/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  ContactRoute: typeof ContactRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  BookingConfirmationRoute: typeof BookingConfirmationRoute
+  ManageTokenRoute: typeof ManageTokenRoute
+  BookingIndexRoute: typeof BookingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +190,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/appointments': {
+      id: '/admin/appointments'
+      path: '/appointments'
+      fullPath: '/admin/appointments'
+      preLoaderRoute: typeof AdminAppointmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/calendar': {
+      id: '/admin/calendar'
+      path: '/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/booking/': {
+      id: '/booking/'
+      path: '/booking'
+      fullPath: '/booking/'
+      preLoaderRoute: typeof BookingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/confirmation': {
+      id: '/booking/confirmation'
+      path: '/booking/confirmation'
+      fullPath: '/booking/confirmation'
+      preLoaderRoute: typeof BookingConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manage/$token': {
+      id: '/manage/$token'
+      path: '/manage/$token'
+      fullPath: '/manage/$token'
+      preLoaderRoute: typeof ManageTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminCalendarRoute: AdminCalendarRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AdminRoute: AdminRouteWithChildren,
+  ContactRoute: ContactRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
+  BookingConfirmationRoute: BookingConfirmationRoute,
+  ManageTokenRoute: ManageTokenRoute,
+  BookingIndexRoute: BookingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
