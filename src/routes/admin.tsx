@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AdminShell } from "@/components/app/admin-shell";
-import { AppointmentsProvider } from "@/lib/appointments-store";
+import { AdminAccess } from "@/components/app/admin-access";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -8,10 +8,10 @@ export const Route = createFileRoute("/admin")({
 
 function AdminLayout() {
   return (
-    <AppointmentsProvider>
+    <AdminAccess>
       <AdminShell>
         <Outlet />
       </AdminShell>
-    </AppointmentsProvider>
+    </AdminAccess>
   );
 }

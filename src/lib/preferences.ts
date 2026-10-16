@@ -1,0 +1,17 @@
+export const defaultSettings = {
+  timezone: "Europe/Paris",
+  name: "Benoît",
+  role: "CTO",
+  email: "benoit@example.com",
+  duration: 30,
+  buffer: 15,
+  notice: 24,
+  horizon: 60,
+  start: "09:00",
+  end: "18:00",
+  days: [1, 2, 3, 4, 5],
+  emailReminder: true,
+  confirmation: true,
+  followup: true,
+  cancellation: false,
+};

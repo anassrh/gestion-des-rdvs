@@ -71,18 +71,18 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.993 0.013 91);
-  --foreground: oklch(0.25 0.004 80);
+  --background: #fffcf2;
+  --foreground: #252422;
   --surface: oklch(0.975 0.012 85);
-  --silver: oklch(0.82 0.02 80);
+  --silver: #ccc5b9;
   --card: oklch(0.999 0.004 90);
   --card-foreground: oklch(0.25 0.004 80);
   --popover: oklch(0.999 0.004 90);
   --popover-foreground: oklch(0.25 0.004 80);
-  --primary: oklch(0.66 0.19 40);
+  --primary: #eb5e28;
   --primary-hover: oklch(0.6 0.18 40);
   --primary-soft: oklch(0.66 0.19 40 / 10%);
-  --primary-foreground: oklch(0.993 0.013 91);
+  --primary-foreground: #252422;
   --secondary: oklch(0.82 0.02 80 / 28%);
   --secondary-foreground: oklch(0.25 0.004 80);
   --muted: oklch(0.82 0.02 80 / 22%);

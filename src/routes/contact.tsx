@@ -4,15 +4,17 @@ import { InfoPage } from "@/components/app/info-page";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Meridian" },
-      { name: "description", content: "Get in touch with Meridian." },
-      { property: "og:title", content: "Contact — Meridian" },
-      { property: "og:description", content: "Get in touch with Meridian." },
+      { title: "Contact — RdvFlow" },
+      { name: "description", content: "Get in touch with RdvFlow." },
+      { property: "og:title", content: "Contact — RdvFlow" },
+      { property: "og:description", content: "Get in touch with RdvFlow." },
     ],
   }),
   component: () => (
     <InfoPage title="Contact">
-      <p>Email: hello@meridian.app</p><p>Phone: +33 1 23 45 67 89</p><p>For meetings, please use the booking page.</p>
+      <p>Email: hello@meridian.app</p>
+      <p>Phone: +33 1 23 45 67 89</p>
+      <p>For meetings, please use the booking page.</p>
     </InfoPage>
   ),
 });

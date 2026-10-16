@@ -9,6 +9,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function ConfirmationDialog({
   open,
@@ -25,8 +27,9 @@ export function ConfirmationDialog({
   description: string;
   confirmLabel?: string;
   destructive?: boolean;
-  onConfirm: () => void;
+  onConfirm: () => void | boolean | Promise<void | boolean>;
 }) {
+  const [busy, setBusy] = useState(false);
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -35,9 +38,24 @@ export function ConfirmationDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Keep it</AlertDialogCancel>
-          <AlertDialogAction className={buttonVariants({ variant: destructive ? "destructive" : "default" })} onClick={onConfirm}>
-            {confirmLabel}
+          <AlertDialogCancel disabled={busy}>Keep it</AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: destructive ? "destructive" : "default" })}
+            disabled={busy}
+            onClick={async (event) => {
+              event.preventDefault();
+              setBusy(true);
+              try {
+                const result = await onConfirm();
+                if (result !== false) onOpenChange(false);
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Unable to save.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Saving…" : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

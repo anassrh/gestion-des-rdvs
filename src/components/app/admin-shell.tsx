@@ -39,7 +39,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Initials, SearchInput } from "./primitives";
 import { NewAppointmentDialog } from "./new-appointment-dialog";
-import { recentActivity } from "@/lib/mock-data";
+import { useAppointments } from "@/lib/appointments-store";
+import { appointmentActivity } from "@/lib/activity";
+import { usePreferences } from "@/hooks/use-preferences";
+import { useRemoteCore } from "@/lib/supabase/core-context";
 
 const nav = [
   { title: "Dashboard", url: "/admin", icon: LayoutGrid },
@@ -53,18 +56,23 @@ const nav = [
 ] as const;
 
 function AppSidebar() {
+  const core = useRemoteCore();
+  const settings = usePreferences();
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
-  const isActive = (u: string) => (u === "/admin" ? path === "/admin" || path === "/admin/" : path.startsWith(u));
+  const isActive = (u: string) =>
+    u === "/admin" ? path === "/admin" || path === "/admin/" : path.startsWith(u);
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-16 justify-center px-3">
         <Link to="/admin" className="flex items-center gap-2 px-1">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background">M</span>
-          {!collapsed && <span className="text-[15px] font-semibold tracking-tight">Meridian</span>}
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background">
+            R
+          </span>
+          {!collapsed && <span className="text-[15px] font-semibold tracking-tight">RdvFlow</span>}
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -79,8 +87,10 @@ function AppSidebar() {
                     tooltip={item.title}
                     className="h-9 text-[13.5px] data-[active=true]:bg-card data-[active=true]:font-medium data-[active=true]:shadow-soft"
                   >
-                    <Link to={item.url}>
-                      <item.icon className={isActive(item.url) ? "text-primary" : "text-muted-foreground"} />
+                    <Link to={item.url} onClick={() => setOpenMobile(false)}>
+                      <item.icon
+                        className={isActive(item.url) ? "text-primary" : "text-muted-foreground"}
+                      />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -92,19 +102,23 @@ function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-3">
         <div className="flex items-center gap-2.5 rounded-lg p-1.5">
-          <Initials name="Benoît Admin" size="sm" className="bg-foreground text-background" />
+          <Initials name={settings.name} size="sm" className="bg-foreground text-background" />
           {!collapsed && (
             <>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">Benoît</div>
-                <div className="text-xs text-muted-foreground">CTO</div>
+                <div className="truncate text-sm font-medium">{settings.name}</div>
+                <div className="text-xs text-muted-foreground">{settings.role}</div>
               </div>
               <Button
                 size="icon"
                 variant="ghost"
                 className="h-8 w-8"
                 aria-label="Log out"
-                onClick={() => { toast("Signed out (demo)"); navigate({ to: "/" }); }}
+                onClick={async () => {
+                  if (core) await core.signOut();
+                  else toast("Signed out (demo)");
+                  navigate({ to: "/" });
+                }}
               >
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -117,6 +131,10 @@ function AppSidebar() {
 }
 
 function Topbar() {
+  const core = useRemoteCore();
+  const settings = usePreferences();
+  const { appointments } = useAppointments();
+  const recentActivity = appointmentActivity(appointments);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -125,26 +143,48 @@ function Topbar() {
       <SidebarTrigger />
       <form
         className="max-w-sm flex-1"
-        onSubmit={(e) => { e.preventDefault(); navigate({ to: "/admin/appointments", search: { q } }); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          navigate({ to: "/admin/appointments", search: { q } });
+        }}
       >
         <SearchInput value={q} onChange={setQ} placeholder="Search appointments, contacts…" />
       </form>
       <div className="ml-auto flex items-center gap-1.5">
-        <Button size="sm" className="hidden rounded-full sm:inline-flex" onClick={() => setOpen(true)}>
+        <Button
+          size="sm"
+          className="hidden rounded-full sm:inline-flex"
+          onClick={() => setOpen(true)}
+        >
           <Plus className="h-4 w-4" /> New appointment
         </Button>
-        <Button size="icon" className="rounded-full sm:hidden" aria-label="New appointment" onClick={() => setOpen(true)}>
+        <Button
+          size="icon"
+          className="rounded-full sm:hidden"
+          aria-label="New appointment"
+          onClick={() => setOpen(true)}
+        >
           <Plus className="h-4 w-4" />
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full"
+              aria-label="Notifications"
+            >
               <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-primary" />
+              {recentActivity.length > 0 && (
+                <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-primary" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuLabel>Local appointment activity</DropdownMenuLabel>
+            {!recentActivity.length && (
+              <DropdownMenuItem disabled>No activity yet</DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             {recentActivity.slice(0, 4).map((a) => (
               <DropdownMenuItem key={a.id} className="flex flex-col items-start gap-0.5">
@@ -156,16 +196,33 @@ function Topbar() {
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label="Profile menu">
-              <Initials name="Benoît Admin" size="sm" className="bg-foreground text-background" />
+            <button
+              className="rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              aria-label="Profile menu"
+            >
+              <Initials name={settings.name} size="sm" className="bg-foreground text-background" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Benoît · CTO</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {settings.name} · {settings.role}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild><Link to="/admin/settings">Settings</Link></DropdownMenuItem>
-            <DropdownMenuItem asChild><Link to="/">View public page</Link></DropdownMenuItem>
-            <DropdownMenuItem onClick={() => toast("Signed out (demo)")}>Log out</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/admin/settings">Settings</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/">View public page</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                if (core) await core.signOut();
+                else toast("Leaving admin demo; no authentication is connected.");
+                navigate({ to: "/" });
+              }}
+            >
+              Exit admin demo
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -181,7 +238,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <AppSidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8 md:py-10">{children}</main>
+          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8 md:py-10">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>

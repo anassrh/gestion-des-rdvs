@@ -13,9 +13,12 @@ export const MEETING_TYPES: { value: MeetingType; label: string; long: string }[
 ];
 
 export const meetingLabel = (t: MeetingType) => MEETING_TYPES.find((m) => m.value === t)?.long ?? t;
-export const meetingShort = (t: MeetingType) => MEETING_TYPES.find((m) => m.value === t)?.label ?? t;
+export const meetingShort = (t: MeetingType) =>
+  MEETING_TYPES.find((m) => m.value === t)?.label ?? t;
 
 export interface Contact {
+  firstName?: string | undefined;
+  lastName?: string | undefined;
   id: string;
   name: string;
   company: string;
@@ -31,6 +34,7 @@ export interface HistoryEvent {
 }
 
 export interface Appointment {
+  guest?: Contact;
   id: string;
   token: string;
   contactId: string;
@@ -45,14 +49,78 @@ export interface Appointment {
 }
 
 export const contacts: Contact[] = [
-  { id: "c1", name: "Marie Dupont", company: "Acme Consulting", role: "Managing Partner", email: "marie.dupont@acme-consulting.fr", phone: "+33 6 12 34 56 78", notes: "Interested in a long-term platform audit. Prefers morning slots." },
-  { id: "c2", name: "Thomas Bernard", company: "Nova Labs", role: "Head of Engineering", email: "thomas@novalabs.io", phone: "+33 6 98 76 54 32", notes: "Evaluating migration to an event-driven architecture." },
-  { id: "c3", name: "Sarah Martin", company: "Freelance", role: "Product Designer", email: "sarah.martin@studio.design", phone: "+33 7 45 12 89 63", notes: "Candidate for the design-system lead role." },
-  { id: "c4", name: "Julien Robert", company: "Horizon Digital", role: "CEO", email: "j.robert@horizon-digital.com", phone: "+33 6 33 21 45 67", notes: "Potential partnership on AI tooling." },
-  { id: "c5", name: "Emma Laurent", company: "Vertex AI", role: "Solutions Architect", email: "emma.laurent@vertex.ai", phone: "+33 6 77 88 99 00", notes: "Technical deep dive on RAG pipelines." },
-  { id: "c6", name: "David Moreau", company: "Bluefin Capital", role: "Investment Director", email: "d.moreau@bluefin.vc", phone: "+33 6 11 22 33 44", notes: "Quarterly portfolio check-in." },
-  { id: "c7", name: "Léa Petit", company: "Internal", role: "Engineering Manager", email: "lea.petit@company.com", phone: "+33 6 55 44 33 22", notes: "Weekly 1:1." },
-  { id: "c8", name: "Hugo Lambert", company: "Kinetic Studio", role: "CTO", email: "hugo@kinetic.studio", phone: "+33 6 66 77 11 22", notes: "Peer exchange on hiring practices." },
+  {
+    id: "c1",
+    name: "Marie Dupont",
+    company: "Acme Consulting",
+    role: "Managing Partner",
+    email: "marie.dupont@acme-consulting.fr",
+    phone: "+33 6 12 34 56 78",
+    notes: "Interested in a long-term platform audit. Prefers morning slots.",
+  },
+  {
+    id: "c2",
+    name: "Thomas Bernard",
+    company: "Nova Labs",
+    role: "Head of Engineering",
+    email: "thomas@novalabs.io",
+    phone: "+33 6 98 76 54 32",
+    notes: "Evaluating migration to an event-driven architecture.",
+  },
+  {
+    id: "c3",
+    name: "Sarah Martin",
+    company: "Freelance",
+    role: "Product Designer",
+    email: "sarah.martin@studio.design",
+    phone: "+33 7 45 12 89 63",
+    notes: "Candidate for the design-system lead role.",
+  },
+  {
+    id: "c4",
+    name: "Julien Robert",
+    company: "Horizon Digital",
+    role: "CEO",
+    email: "j.robert@horizon-digital.com",
+    phone: "+33 6 33 21 45 67",
+    notes: "Potential partnership on AI tooling.",
+  },
+  {
+    id: "c5",
+    name: "Emma Laurent",
+    company: "Vertex AI",
+    role: "Solutions Architect",
+    email: "emma.laurent@vertex.ai",
+    phone: "+33 6 77 88 99 00",
+    notes: "Technical deep dive on RAG pipelines.",
+  },
+  {
+    id: "c6",
+    name: "David Moreau",
+    company: "Bluefin Capital",
+    role: "Investment Director",
+    email: "d.moreau@bluefin.vc",
+    phone: "+33 6 11 22 33 44",
+    notes: "Quarterly portfolio check-in.",
+  },
+  {
+    id: "c7",
+    name: "Léa Petit",
+    company: "Internal",
+    role: "Engineering Manager",
+    email: "lea.petit@company.com",
+    phone: "+33 6 55 44 33 22",
+    notes: "Weekly 1:1.",
+  },
+  {
+    id: "c8",
+    name: "Hugo Lambert",
+    company: "Kinetic Studio",
+    role: "CTO",
+    email: "hugo@kinetic.studio",
+    phone: "+33 6 66 77 11 22",
+    notes: "Peer exchange on hiring practices.",
+  },
 ];
 
 export const contactById = (id: string) => contacts.find((c) => c.id === id)!;
@@ -74,9 +142,12 @@ function appt(
   n += 1;
   const createdAt = subDays(start, 6);
   const history: HistoryEvent[] = [{ at: createdAt, label: "Appointment booked via public page" }];
-  if (reminder === "sent") history.push({ at: subDays(start, 1), label: "Reminder email sent (24h)" });
-  if (status === "confirmed") history.push({ at: subDays(start, 3), label: "Guest confirmed attendance" });
-  if (status === "cancelled") history.push({ at: subDays(start, 2), label: "Guest cancelled the appointment" });
+  if (reminder === "sent")
+    history.push({ at: subDays(start, 1), label: "Reminder email sent (24h)" });
+  if (status === "confirmed")
+    history.push({ at: subDays(start, 3), label: "Guest confirmed attendance" });
+  if (status === "cancelled")
+    history.push({ at: subDays(start, 2), label: "Guest cancelled the appointment" });
   if (status === "completed") history.push({ at: start, label: "Meeting marked as completed" });
   return {
     id: `a${n}`,
@@ -95,7 +166,15 @@ function appt(
 
 export const initialAppointments: Appointment[] = [
   appt("c1", at(0, 9), "client", "confirmed", "sent", 45, "Review Q4 roadmap and audit scope."),
-  appt("c2", at(0, 10, 30), "technical", "confirmed", "sent", 60, "Event sourcing vs. CDC trade-offs."),
+  appt(
+    "c2",
+    at(0, 10, 30),
+    "technical",
+    "confirmed",
+    "sent",
+    60,
+    "Event sourcing vs. CDC trade-offs.",
+  ),
   appt("c3", at(0, 14), "recruitment", "pending", "sent", 45, "Portfolio walkthrough."),
   appt("c7", at(0, 16), "internal", "confirmed", "none", 30, "Weekly 1:1."),
   appt("c4", at(1, 9, 30), "partnership", "pending", "scheduled", 45, "Co-marketing proposal."),
@@ -123,13 +202,30 @@ export interface ActivityItem {
 
 export const recentActivity: ActivityItem[] = [
   { id: "r1", text: "Marie Dupont confirmed her appointment", ago: "12 min ago", kind: "confirm" },
-  { id: "r2", text: "Thomas Bernard rescheduled from 14:00 to 15:30", ago: "1 h ago", kind: "reschedule" },
+  {
+    id: "r2",
+    text: "Thomas Bernard rescheduled from 14:00 to 15:30",
+    ago: "1 h ago",
+    kind: "reschedule",
+  },
   { id: "r3", text: "Reminder sent to David Moreau", ago: "2 h ago", kind: "reminder" },
-  { id: "r4", text: "Julien Robert booked a partnership meeting", ago: "Yesterday", kind: "booking" },
-  { id: "r5", text: "Thomas Bernard cancelled a technical discussion", ago: "2 days ago", kind: "cancel" },
+  {
+    id: "r4",
+    text: "Julien Robert booked a partnership meeting",
+    ago: "Yesterday",
+    kind: "booking",
+  },
+  {
+    id: "r5",
+    text: "Thomas Bernard cancelled a technical discussion",
+    ago: "2 days ago",
+    kind: "cancel",
+  },
 ];
 
 export interface Automation {
+  lastResult?: "success" | "failed" | undefined;
+  lastError?: string | undefined;
   id: string;
   name: string;
   description: string;
@@ -142,14 +238,57 @@ export interface Automation {
 }
 
 export const initialAutomations: Automation[] = [
-  { id: "w1", name: "Appointment confirmation", description: "Confirms every new booking to the guest.", trigger: "When appointment is created", action: "Send confirmation email", enabled: true, lastRun: "8 min ago", successRate: 99.4, runs: 312 },
-  { id: "w2", name: "Reminder 24 hours before", description: "Reduces no-shows with a timely reminder.", trigger: "24h before appointment", action: "Send reminder", enabled: true, lastRun: "2 h ago", successRate: 98.1, runs: 287 },
-  { id: "w3", name: "Pending confirmation follow-up", description: "Nudges guests who have not confirmed yet.", trigger: "No confirmation after 24h", action: "Send follow-up", enabled: true, lastRun: "Yesterday", successRate: 94.7, runs: 76 },
-  { id: "w4", name: "Cancellation notification", description: "Keeps you informed of every cancellation.", trigger: "Appointment cancelled", action: "Notify admin", enabled: false, lastRun: "3 days ago", successRate: 100, runs: 18 },
+  {
+    id: "w1",
+    name: "Appointment confirmation",
+    description: "Confirms every new booking to the guest.",
+    trigger: "When appointment is created",
+    action: "Send confirmation email",
+    enabled: true,
+    lastRun: "8 min ago",
+    successRate: 99.4,
+    runs: 312,
+  },
+  {
+    id: "w2",
+    name: "Reminder 24 hours before",
+    description: "Reduces no-shows with a timely reminder.",
+    trigger: "24h before appointment",
+    action: "Send reminder",
+    enabled: true,
+    lastRun: "2 h ago",
+    successRate: 98.1,
+    runs: 287,
+  },
+  {
+    id: "w3",
+    name: "Pending confirmation follow-up",
+    description: "Nudges guests who have not confirmed yet.",
+    trigger: "No confirmation after 24h",
+    action: "Send follow-up",
+    enabled: true,
+    lastRun: "Yesterday",
+    successRate: 94.7,
+    runs: 76,
+  },
+  {
+    id: "w4",
+    name: "Cancellation notification",
+    description: "Keeps you informed of every cancellation.",
+    trigger: "Appointment cancelled",
+    action: "Notify admin",
+    enabled: false,
+    lastRun: "3 days ago",
+    successRate: 100,
+    runs: 18,
+  },
 ];
 
-export type DocStatus = "processing" | "ready" | "failed";
+export type DocStatus = "uploading" | "processing" | "ready" | "failed";
 export interface KnowledgeDoc {
+  stageStartedAt?: number | undefined;
+  simulateFailure?: boolean | undefined;
+  error?: string | undefined;
   id: string;
   name: string;
   size: string;
@@ -160,11 +299,51 @@ export interface KnowledgeDoc {
 }
 
 export const initialDocs: KnowledgeDoc[] = [
-  { id: "d1", name: "Onboarding-Guide-2026.pdf", size: "2.4 MB", uploaded: "Oct 12, 2026", status: "ready", chunks: 142, indexed: true },
-  { id: "d2", name: "Cancellation-Policy.docx", size: "84 KB", uploaded: "Oct 10, 2026", status: "ready", chunks: 18, indexed: true },
-  { id: "d3", name: "Pricing-Consulting-Services.pdf", size: "1.1 MB", uploaded: "Oct 08, 2026", status: "ready", chunks: 64, indexed: true },
-  { id: "d4", name: "Architecture-Principles.txt", size: "36 KB", uploaded: "Oct 14, 2026", status: "processing", chunks: 0, indexed: false },
-  { id: "d5", name: "Q3-Board-Deck-scan.pdf", size: "12.8 MB", uploaded: "Oct 02, 2026", status: "failed", chunks: 0, indexed: false },
+  {
+    id: "d1",
+    name: "Onboarding-Guide-2026.pdf",
+    size: "2.4 MB",
+    uploaded: "Oct 12, 2026",
+    status: "ready",
+    chunks: 142,
+    indexed: true,
+  },
+  {
+    id: "d2",
+    name: "Cancellation-Policy.docx",
+    size: "84 KB",
+    uploaded: "Oct 10, 2026",
+    status: "ready",
+    chunks: 18,
+    indexed: true,
+  },
+  {
+    id: "d3",
+    name: "Pricing-Consulting-Services.pdf",
+    size: "1.1 MB",
+    uploaded: "Oct 08, 2026",
+    status: "ready",
+    chunks: 64,
+    indexed: true,
+  },
+  {
+    id: "d4",
+    name: "Architecture-Principles.txt",
+    size: "36 KB",
+    uploaded: "Oct 14, 2026",
+    status: "processing",
+    chunks: 0,
+    indexed: false,
+  },
+  {
+    id: "d5",
+    name: "Q3-Board-Deck-scan.pdf",
+    size: "12.8 MB",
+    uploaded: "Oct 02, 2026",
+    status: "failed",
+    chunks: 0,
+    indexed: false,
+  },
 ];
 
 /** Deterministic availability for the public booking calendar. */

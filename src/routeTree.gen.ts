@@ -17,7 +17,12 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
+import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
 import { Route as AdminCalendarRouteImport } from './routes/admin.calendar'
+import { Route as AdminChatRouteImport } from './routes/admin.chat'
+import { Route as AdminContactsRouteImport } from './routes/admin.contacts'
+import { Route as AdminKnowledgeRouteImport } from './routes/admin.knowledge'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as BookingIndexRouteImport } from './routes/booking.index'
 import { Route as BookingConfirmationRouteImport } from './routes/booking.confirmation'
 import { Route as ManageTokenRouteImport } from './routes/manage.$token'
@@ -62,9 +67,34 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAutomationsRoute = AdminAutomationsRouteImport.update({
+  id: '/automations',
+  path: '/automations',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCalendarRoute = AdminCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminChatRoute = AdminChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContactsRoute = AdminContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKnowledgeRoute = AdminKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
 const BookingIndexRoute = BookingIndexRouteImport.update({
@@ -91,7 +121,12 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/automations': typeof AdminAutomationsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/chat': typeof AdminChatRoute
+  '/admin/contacts': typeof AdminContactsRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/booking/confirmation': typeof BookingConfirmationRoute
   '/manage/$token': typeof ManageTokenRoute
   '/admin/': typeof AdminIndexRoute
@@ -104,7 +139,12 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/automations': typeof AdminAutomationsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/chat': typeof AdminChatRoute
+  '/admin/contacts': typeof AdminContactsRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/booking/confirmation': typeof BookingConfirmationRoute
   '/manage/$token': typeof ManageTokenRoute
   '/admin': typeof AdminIndexRoute
@@ -119,7 +159,12 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/automations': typeof AdminAutomationsRoute
   '/admin/calendar': typeof AdminCalendarRoute
+  '/admin/chat': typeof AdminChatRoute
+  '/admin/contacts': typeof AdminContactsRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/booking/confirmation': typeof BookingConfirmationRoute
   '/manage/$token': typeof ManageTokenRoute
   '/admin/': typeof AdminIndexRoute
@@ -135,7 +180,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/admin/appointments'
+    | '/admin/automations'
     | '/admin/calendar'
+    | '/admin/chat'
+    | '/admin/contacts'
+    | '/admin/knowledge'
+    | '/admin/settings'
     | '/booking/confirmation'
     | '/manage/$token'
     | '/admin/'
@@ -148,7 +198,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/admin/appointments'
+    | '/admin/automations'
     | '/admin/calendar'
+    | '/admin/chat'
+    | '/admin/contacts'
+    | '/admin/knowledge'
+    | '/admin/settings'
     | '/booking/confirmation'
     | '/manage/$token'
     | '/admin'
@@ -162,7 +217,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/admin/appointments'
+    | '/admin/automations'
     | '/admin/calendar'
+    | '/admin/chat'
+    | '/admin/contacts'
+    | '/admin/knowledge'
+    | '/admin/settings'
     | '/booking/confirmation'
     | '/manage/$token'
     | '/admin/'
@@ -239,11 +299,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/automations': {
+      id: '/admin/automations'
+      path: '/automations'
+      fullPath: '/admin/automations'
+      preLoaderRoute: typeof AdminAutomationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/calendar': {
       id: '/admin/calendar'
       path: '/calendar'
       fullPath: '/admin/calendar'
       preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/chat': {
+      id: '/admin/chat'
+      path: '/chat'
+      fullPath: '/admin/chat'
+      preLoaderRoute: typeof AdminChatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/contacts': {
+      id: '/admin/contacts'
+      path: '/contacts'
+      fullPath: '/admin/contacts'
+      preLoaderRoute: typeof AdminContactsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/knowledge': {
+      id: '/admin/knowledge'
+      path: '/knowledge'
+      fullPath: '/admin/knowledge'
+      preLoaderRoute: typeof AdminKnowledgeRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/booking/': {
@@ -272,13 +367,23 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminChatRoute: typeof AdminChatRoute
+  AdminContactsRoute: typeof AdminContactsRoute
+  AdminKnowledgeRoute: typeof AdminKnowledgeRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminAutomationsRoute: AdminAutomationsRoute,
   AdminCalendarRoute: AdminCalendarRoute,
+  AdminChatRoute: AdminChatRoute,
+  AdminContactsRoute: AdminContactsRoute,
+  AdminKnowledgeRoute: AdminKnowledgeRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

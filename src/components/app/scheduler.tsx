@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -16,16 +17,48 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { slotsForDate } from "@/lib/mock-data";
+import { useAvailability } from "@/hooks/use-availability";
 
-export function MonthCalendar({ selected, onSelect }: { selected: Date | null; onSelect: (d: Date) => void }) {
+export function MonthCalendar({
+  selected,
+  onSelect,
+  duration,
+  excludeId,
+  managementToken,
+}: {
+  selected: Date | null;
+  onSelect: (d: Date) => void;
+  duration?: number | undefined;
+  excludeId?: string | undefined;
+  managementToken?: string | undefined;
+}) {
   const [month, setMonth] = useState(() => startOfMonth(selected ?? new Date()));
+  useEffect(() => {
+    if (selected) setMonth(startOfMonth(selected));
+  }, [selected]);
+  const { slotsForDate, settings, loading, error } = useAvailability(
+    duration,
+    excludeId,
+    managementToken,
+  );
   const today = startOfDay(new Date());
   const days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(month), { weekStartsOn: 1 }),
     end: endOfWeek(endOfMonth(month), { weekStartsOn: 1 }),
   });
   const canPrev = !isSameMonth(month, today) && !isBefore(month, today);
+  if (loading)
+    return (
+      <p role="status" className="py-8 text-sm text-muted-foreground">
+        Loading availability…
+      </p>
+    );
+  if (error)
+    return (
+      <p role="alert" className="py-8 text-sm text-destructive">
+        {error}
+      </p>
+    );
 
   return (
     <div>
@@ -44,6 +77,7 @@ export function MonthCalendar({ selected, onSelect }: { selected: Date | null; o
           <button
             type="button"
             onClick={() => setMonth(addMonths(month, 1))}
+            disabled={startOfMonth(addMonths(month, 1)) > addDays(today, settings.horizon)}
             aria-label="Next month"
             className="rounded-full p-2 text-foreground transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
@@ -78,20 +112,59 @@ export function MonthCalendar({ selected, onSelect }: { selected: Date | null; o
               )}
             >
               {format(d, "d")}
-              {isToday(d) && !sel && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />}
+              {isToday(d) && !sel && (
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />
+              )}
             </button>
           );
         })}
       </div>
+      {!days.some((d) => isSameMonth(d, month) && slotsForDate(d).length > 0) && (
+        <p role="status" className="mt-4 text-sm text-muted-foreground">
+          No available times this month within the booking rules. Try another month.
+        </p>
+      )}
     </div>
   );
 }
 
-export function TimeSlotPicker({ date, value, onChange }: { date: Date; value: string | null; onChange: (t: string) => void }) {
+export function TimeSlotPicker({
+  date,
+  value,
+  onChange,
+  duration,
+  excludeId,
+  managementToken,
+}: {
+  date: Date;
+  value: string | null;
+  onChange: (t: string) => void;
+  duration?: number | undefined;
+  excludeId?: string | undefined;
+  managementToken?: string | undefined;
+}) {
+  const { slotsForDate, loading, error } = useAvailability(duration, excludeId, managementToken);
+  if (loading)
+    return (
+      <p role="status" className="text-sm text-muted-foreground">
+        Loading available times…
+      </p>
+    );
+  if (error)
+    return (
+      <p role="alert" className="text-sm text-destructive">
+        {error}
+      </p>
+    );
   const slots = slotsForDate(date);
-  if (!slots.length) return <p className="text-sm text-muted-foreground">No availability on this day.</p>;
+  if (!slots.length)
+    return <p className="text-sm text-muted-foreground">No availability on this day.</p>;
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Available times">
+    <div
+      className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+      role="radiogroup"
+      aria-label="Available times"
+    >
       {slots.map((s) => {
         const sel = s === value;
         return (
@@ -117,7 +190,7 @@ export function TimeSlotPicker({ date, value, onChange }: { date: Date; value: s
 }
 
 export function combine(date: Date, time: string) {
-  const [h, m] = time.split(":").map(Number);
+  const [h = 0, m = 0] = time.split(":").map(Number);
   const d = new Date(date);
   d.setHours(h, m, 0, 0);
   return d;
