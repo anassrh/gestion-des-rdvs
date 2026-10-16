@@ -3,6 +3,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { executeAppointmentMutation as mutate } from "@/lib/integrations/appointment-mutation.server";
 import { buildAppointmentPayload, sendAppointmentEvent } from "@/lib/integrations/n8n.server";
 import { mapAppointment } from "@/lib/supabase/mapping";
+import { getNotificationRecipient } from "@/lib/integrations/notification-recipient.server";
+
+vi.mock("@/lib/integrations/notification-recipient.server", () => ({
+  getNotificationRecipient: vi.fn(
+    async (_id: string, env: Record<string, string | undefined>) =>
+      env["N8N_ADMIN_NOTIFICATION_EMAIL"],
+  ),
+}));
 
 // Delivery assertions explicitly drain the background work; the response test
 // below calls the actual mutation directly and leaves the webhook unresolved.
@@ -18,6 +26,7 @@ async function executeAppointmentMutation(...args: Parameters<typeof mutate>) {
 const token = "a".repeat(64);
 const row = {
   id: "11111111-1111-4111-8111-111111111111",
+  owner_id: "11111111-1111-4111-8111-111111111111",
   contact_id: "contact",
   starts_at: "2026-11-02T09:15:00Z",
   duration_minutes: 30,
@@ -77,7 +86,7 @@ describe("n8n appointment notifications", () => {
       pending.push(task),
     );
     expect(response).toBe(result);
-    expect(fetcher).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
     expect(pending).toHaveLength(1);
     release(new Response(null, { status: 200 }));
     await Promise.all(pending);
@@ -116,6 +125,7 @@ describe("n8n appointment notifications", () => {
     expect(payload.appointment).toMatchObject({ date: "2026-10-21", time: "00:15" });
   });
   it("posts JSON only after the database result has succeeded", async () => {
+    vi.mocked(getNotificationRecipient).mockResolvedValueOnce("saved-recipient@example.com");
     let committed = false;
     const rpc = vi.fn(async (name: string) => {
       if (name === "create_booking") {
@@ -129,6 +139,7 @@ describe("n8n appointment notifications", () => {
       expect(init?.method).toBe("POST");
       expect(init?.headers).toEqual({ "Content-Type": "application/json" });
       expect(JSON.parse(init?.body as string).event_type).toBe("APPOINTMENT_CREATED");
+      expect(JSON.parse(init?.body as string).admin.email).toBe("saved-recipient@example.com");
       return new Response(null, { status: 200 });
     }) as unknown as typeof fetch;
     const result = await executeAppointmentMutation(

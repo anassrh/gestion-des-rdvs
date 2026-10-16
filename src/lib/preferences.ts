@@ -3,6 +3,7 @@ export const defaultSettings = {
   name: "Benoît",
   role: "CTO",
   email: "benoit@example.com",
+  notificationEmail: "",
   duration: 30,
   buffer: 15,
   notice: 24,

@@ -89,6 +89,19 @@ function SettingsPage() {
                 />
               </label>
             ))}
+            <label className="space-y-2 text-sm">
+              <span>Admin notification email</span>
+              <Input
+                type="email"
+                maxLength={254}
+                value={settings.notificationEmail}
+                placeholder={settings.email}
+                onChange={(e) => set("notificationEmail", e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave blank to use your profile email.
+              </p>
+            </label>
           </div>
         </SectionCard>
         <SectionCard title="Availability">

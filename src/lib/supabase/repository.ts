@@ -157,7 +157,12 @@ export class SupabaseRepository
     return tokenSchema.parse(await this.call("admin_issue_management_token", { p_id: id }));
   }
   async saveSettings(settings: Settings) {
-    return mapSnapshot(await this.call("admin_save_settings", { p_input: settings }));
+    const snapshot = mapSnapshot(await this.call("admin_save_settings", { p_input: settings }));
+    if (snapshot.settings.notificationEmail !== settings.notificationEmail.trim())
+      throw new Error(
+        "Apply supabase/migrations/202610160002_notification_email.sql before saving notification settings.",
+      );
+    return snapshot;
   }
 }
 let repository: SupabaseRepository | undefined;

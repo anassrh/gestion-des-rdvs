@@ -6,13 +6,24 @@ and on the deployment server. Restart the dev server after changing them.
 ```dotenv
 N8N_APPOINTMENT_WEBHOOK_URL=https://drobi.app.n8n.cloud/webhook/meridian-appointments
 N8N_ADMIN_NOTIFICATION_EMAIL=your-notification-email@example.com
+SUPABASE_SERVICE_ROLE_KEY=your-server-only-supabase-key
 APP_PUBLIC_URL=http://localhost:8082
 ```
 
 Replace `APP_PUBLIC_URL` with the deployed public origin before sending links to
 other people: localhost links only work on the machine running RdvFlow. Keep the
-existing two public Supabase variables. No service-role or n8n account credential
-is needed. These three notification variables must not use the `VITE_` prefix.
+existing two public Supabase variables. The server-only Supabase key reads the
+private notification recipient; it is never sent to the browser or n8n. No n8n
+account credential is needed. Notification variables must not use the `VITE_`
+prefix.
+
+Run `supabase/migrations/202610160002_notification_email.sql` once in SQL Editor.
+The authenticated owner can then set **Admin notification email** in Admin Settings.
+The field is stored in `profiles.notification_email`. Leaving it blank uses
+`profiles.email`; `N8N_ADMIN_NOTIFICATION_EMAIL` is the last fallback when neither
+saved address exists. Email changes take effect on the next notification without
+redeploying. Existing profile RLS and owner-only settings RPC authorization stay
+in force; public calendar responses do not expose either address.
 
 The repository sends creation, rescheduling and cancellation through a TanStack
 POST server function. It invokes the **same existing Supabase RPC** using the
@@ -23,8 +34,8 @@ not notify. Confirmation, editing and completion retain their original path and
 do not notify. Fixture/local-demo operations do not notify.
 
 `n8n.server.ts` builds the requested JSON from the returned appointment and client
-data. Owner display name and timezone come from Supabase; the recipient comes
-from the server environment. Dates/times use the owner's timezone. Public
+data. Owner display name and timezone come from Supabase; the recipient is read
+server-side from that appointment owner's saved profile for every event. Dates/times use the owner's timezone. Public
 management actions reuse the current token. For admin mutations, the server issues
 an additional valid management token because stored hashes cannot be recovered.
 The original links remain valid.

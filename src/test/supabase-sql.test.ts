@@ -11,7 +11,7 @@ interface RpcResult {
   id: string;
   status: string;
   starts_at: string;
-  profile: { display_name: string; email?: string };
+  profile: { display_name: string; email?: string; notification_email?: string | null };
   slots: string[];
   appointment: RpcResult;
   appointments: RpcResult[];
@@ -69,6 +69,12 @@ describe("Supabase migration and server contracts", () => {
       migration.replace(
         "create extension if not exists pgcrypto with schema extensions;",
         "-- pgcrypto test helpers installed above",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        new URL("../../supabase/migrations/202610160002_notification_email.sql", import.meta.url),
+        "utf8",
       ),
     );
     await db.exec(
@@ -209,10 +215,32 @@ describe("Supabase migration and server contracts", () => {
       name: "Benoît",
       role: "CTO",
       email: "benoit.admin@demo.local",
+      notificationEmail: "notifications@example.com",
       timezone: "Europe/Paris",
     };
     await expect(rpc("admin_save_settings", [settings])).rejects.toThrow(/permission denied/);
     await rpc("admin_save_settings", [settings], "authenticated", ownerUser);
+    expect(
+      (await rpc("admin_snapshot", [], "authenticated", ownerUser)).profile.notification_email,
+    ).toBe("notifications@example.com");
+    expect((await rpc("booking_calendar")).profile.notification_email).toBeUndefined();
+    await expect(
+      rpc(
+        "admin_save_settings",
+        [{ ...settings, notificationEmail: "not-an-email" }],
+        "authenticated",
+        ownerUser,
+      ),
+    ).rejects.toThrow(/valid admin notification email/);
+    await rpc(
+      "admin_save_settings",
+      [{ ...settings, notificationEmail: "" }],
+      "authenticated",
+      ownerUser,
+    );
+    expect(
+      (await rpc("admin_snapshot", [], "authenticated", ownerUser)).profile.notification_email,
+    ).toBeNull();
     expect((await rpc("booking_calendar")).profile.display_name).toBe("Benoît");
     await expect(
       rpc(

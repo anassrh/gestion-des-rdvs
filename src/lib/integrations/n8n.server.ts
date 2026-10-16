@@ -2,6 +2,7 @@ import { z } from "zod";
 import { mapAppointment, type Settings } from "../supabase/mapping";
 import type { Appointment } from "../mock-data";
 import type { RpcTransport } from "../supabase/repository";
+import { getNotificationRecipient } from "./notification-recipient.server";
 
 export type AppointmentEventType =
   "APPOINTMENT_CREATED" | "APPOINTMENT_RESCHEDULED" | "APPOINTMENT_CANCELLED";
@@ -122,15 +123,17 @@ export async function notifyCommittedAppointment({
         : null;
   if (!eventType) return;
   try {
-    const config = configSchema.parse({
-      webhook: env["N8N_APPOINTMENT_WEBHOOK_URL"],
-      adminEmail: env["N8N_ADMIN_NOTIFICATION_EMAIL"],
-      publicUrl: env["APP_PUBLIC_URL"],
-    });
     const createdResult = created
       ? z.object({ appointment: z.unknown(), management_token: z.string() }).parse(result)
       : null;
-    const appointment = mapAppointment(createdResult ? createdResult.appointment : result);
+    const rawAppointment = createdResult ? createdResult.appointment : result;
+    const appointment = mapAppointment(rawAppointment);
+    const ownerId = z.object({ owner_id: z.string().uuid() }).parse(rawAppointment).owner_id;
+    const config = configSchema.parse({
+      webhook: env["N8N_APPOINTMENT_WEBHOOK_URL"],
+      adminEmail: await getNotificationRecipient(ownerId, env),
+      publicUrl: env["APP_PUBLIC_URL"],
+    });
     let token = createdResult?.management_token ?? input["p_token"];
     if (!token) {
       // Admin operations cannot recover a stored hash; issue an additional capability.

@@ -82,6 +82,7 @@ const configRow = z.object({
     role_label: z.string(),
     timezone: z.string(),
     email: z.string().optional(),
+    notification_email: z.string().nullish(),
   }),
   preferences: z.object({
     duration_minutes: z.number(),
@@ -107,6 +108,7 @@ export function mapSettings(raw: unknown): Settings {
     name: p.display_name,
     role: p.role_label,
     email: p.email ?? "",
+    notificationEmail: p.notification_email ?? "",
     timezone: p.timezone,
     duration: b.duration_minutes,
     buffer: b.buffer_minutes,
